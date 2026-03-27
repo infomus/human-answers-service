@@ -3,12 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { api, type User as UserType, type Answer } from "@/lib/api";
-import { getCategoryColor, timeAgo } from "@/lib/utils";
+import { getCategoryColor, timeAgo, getUserInitials, getBadges } from "@/lib/utils";
 import {
-  User,
   Award,
   MessageCircle,
   Coins,
@@ -52,18 +56,37 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
+  const initials = getUserInitials(user.name);
+  const hue = user.name.charCodeAt(0) * 7 % 360;
+  const badges = getBadges(user);
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       {/* Profile header */}
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-8 w-8 text-primary" />
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold"
+              style={{ backgroundColor: `hsl(${hue}, 60%, 45%)` }}
+            >
+              {initials}
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold">{user.name}</h1>
               <p className="text-muted-foreground">{user.email}</p>
+              {badges.length > 0 && (
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {badges.map((badge) => (
+                    <span
+                      key={badge.label}
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${badge.color}`}
+                    >
+                      {badge.label}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -75,7 +98,9 @@ export default function ProfilePage() {
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
               <MessageCircle className="h-5 w-5 text-primary mx-auto mb-1" />
-              <div className="text-2xl font-bold">{user.answerCount ?? 0}</div>
+              <div className="text-2xl font-bold">
+                {user.answerCount ?? 0}
+              </div>
               <div className="text-xs text-muted-foreground">Answers</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
@@ -83,7 +108,9 @@ export default function ProfilePage() {
               <div className="text-2xl font-bold">
                 {user.bestAnswerCount ?? 0}
               </div>
-              <div className="text-xs text-muted-foreground">Best Answers</div>
+              <div className="text-xs text-muted-foreground">
+                Best Answers
+              </div>
             </div>
           </div>
         </CardContent>

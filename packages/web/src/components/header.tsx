@@ -5,7 +5,16 @@ import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Bot, Sun, Moon, Trophy, User, LogOut } from "lucide-react";
+import {
+  Bot,
+  Sun,
+  Moon,
+  Trophy,
+  User,
+  LogOut,
+  BarChart3,
+} from "lucide-react";
+import { getUserInitials } from "@/lib/utils";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
@@ -38,34 +47,43 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center px-4">
         <Link href="/" className="flex items-center gap-2 mr-6">
-          <Bot className="h-6 w-6 text-primary" />
-          <span className="font-bold text-lg">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <Bot className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="font-bold text-lg bg-gradient-to-r from-primary to-violet-500 bg-clip-text text-transparent">
             HAS
           </span>
         </Link>
 
-        <nav className="flex items-center gap-4 text-sm flex-1">
+        <nav className="flex items-center gap-1 text-sm flex-1">
           <Link
             href="/"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
             Questions
           </Link>
           <Link
             href="/ask"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
             Agent API
           </Link>
           <Link
             href="/leaderboard"
-            className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center gap-1"
           >
             <Trophy className="h-3.5 w-3.5" />
             Leaderboard
+          </Link>
+          <Link
+            href="/stats"
+            className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center gap-1"
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            Stats
           </Link>
         </nav>
 
@@ -87,8 +105,10 @@ export function Header() {
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/profile">
-                <Button variant="ghost" size="sm" className="gap-1">
-                  <User className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                    {getUserInitials(user.name)}
+                  </div>
                   {user.name}
                 </Button>
               </Link>

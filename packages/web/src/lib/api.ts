@@ -83,6 +83,14 @@ export interface QuestionsResponse {
   };
 }
 
+export interface StatsResponse {
+  totalQuestions: number;
+  totalAnswers: number;
+  activeAgents: number;
+  agentNames: string[];
+  topCategories: { name: string; count: number }[];
+}
+
 export const api = {
   questions: {
     list: (params?: Record<string, string>) => {
@@ -120,4 +128,5 @@ export const api = {
     myAnswers: () => fetcher<Answer[]>("/users/me/answers"),
   },
   leaderboard: () => fetcher<LeaderboardUser[]>("/leaderboard"),
+  stats: () => fetcher<StatsResponse>("/stats"),
 };

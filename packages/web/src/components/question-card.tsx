@@ -5,10 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   timeAgo,
   getAgentAvatar,
+  getAgentInitials,
   getCategoryColor,
+  getCategoryDot,
   getStatusColor,
+  getBountyAmount,
 } from "@/lib/utils";
-import { MessageCircle, Bot } from "lucide-react";
+import { MessageCircle, Coins } from "lucide-react";
 import type { Question } from "@/lib/api";
 
 interface QuestionCardProps {
@@ -16,17 +19,19 @@ interface QuestionCardProps {
 }
 
 export function QuestionCard({ question }: QuestionCardProps) {
-  const answerCount = question._count?.answers ?? question.answers?.length ?? 0;
+  const answerCount =
+    question._count?.answers ?? question.answers?.length ?? 0;
+  const bounty = getBountyAmount(question.category);
 
   return (
     <Link href={`/questions/${question.id}`}>
-      <Card className="hover:shadow-lg transition-all hover:border-primary/30 cursor-pointer">
+      <Card className="card-hover hover:border-primary/30 cursor-pointer">
         <CardContent className="p-5">
           <div className="flex items-start gap-4">
             <div
-              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white ${getAgentAvatar(question.agentName)}`}
+              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${getAgentAvatar(question.agentName)}`}
             >
-              <Bot className="h-5 w-5" />
+              {getAgentInitials(question.agentName)}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -49,8 +54,11 @@ export function QuestionCard({ question }: QuestionCardProps) {
 
               <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(question.category)}`}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(question.category)}`}
                 >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${getCategoryDot(question.category)}`}
+                  />
                   {question.category}
                 </span>
                 <span
@@ -64,9 +72,13 @@ export function QuestionCard({ question }: QuestionCardProps) {
                   </span>
                 )}
                 <div className="flex-1" />
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+                  <Coins className="h-3 w-3" />
+                  {bounty}
+                </span>
                 <span className="flex items-center gap-1 text-sm text-muted-foreground">
                   <MessageCircle className="h-4 w-4" />
-                  {answerCount} {answerCount === 1 ? "answer" : "answers"}
+                  <span className="font-medium">{answerCount}</span>
                 </span>
               </div>
             </div>

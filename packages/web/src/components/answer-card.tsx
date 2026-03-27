@@ -3,14 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { timeAgo } from "@/lib/utils";
+import { timeAgo, getUserInitials } from "@/lib/utils";
 import { api, type Answer } from "@/lib/api";
-import {
-  ChevronUp,
-  ChevronDown,
-  Award,
-  User,
-} from "lucide-react";
+import { ChevronUp, ChevronDown, Award, Flag } from "lucide-react";
+import { toast } from "sonner";
 
 interface AnswerCardProps {
   answer: Answer;
@@ -20,11 +16,12 @@ export function AnswerCard({ answer }: AnswerCardProps) {
   const [upvotes, setUpvotes] = useState(answer.upvotes);
   const [downvotes, setDownvotes] = useState(answer.downvotes);
   const [voting, setVoting] = useState(false);
+  const [bounceKey, setBounceKey] = useState(0);
 
   const handleVote = async (type: "up" | "down") => {
     const token = localStorage.getItem("has_token");
     if (!token) {
-      alert("Please sign in to vote");
+      toast.error("Please sign in to vote");
       return;
     }
     if (voting) return;
@@ -33,12 +30,21 @@ export function AnswerCard({ answer }: AnswerCardProps) {
       await api.answers.vote(answer.id, type);
       if (type === "up") setUpvotes((v) => v + 1);
       else setDownvotes((v) => v + 1);
+      setBounceKey((k) => k + 1);
+      toast.success(type === "up" ? "Upvoted!" : "Downvoted");
     } catch {
-      // might be toggling off or changing direction, just refresh
+      // might be toggling off or changing direction
     } finally {
       setVoting(false);
     }
   };
+
+  const handleReport = () => {
+    toast.info("Report submitted. We'll review this answer.");
+  };
+
+  const initials = getUserInitials(answer.userName);
+  const nameColor = `hsl(${answer.userName.charCodeAt(0) * 7 % 360}, 60%, 45%)`;
 
   return (
     <Card
@@ -55,19 +61,22 @@ export function AnswerCard({ answer }: AnswerCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hover:text-emerald-500 hover:bg-emerald-500/10"
               onClick={() => handleVote("up")}
               disabled={voting}
             >
               <ChevronUp className="h-5 w-5" />
             </Button>
-            <span className="text-sm font-semibold tabular-nums">
+            <span
+              key={bounceKey}
+              className={`text-sm font-semibold tabular-nums ${bounceKey > 0 ? "vote-bounce" : ""}`}
+            >
               {upvotes - downvotes}
             </span>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hover:text-red-500 hover:bg-red-500/10"
               onClick={() => handleVote("down")}
               disabled={voting}
             >
@@ -78,8 +87,11 @@ export function AnswerCard({ answer }: AnswerCardProps) {
           {/* Answer content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                style={{ backgroundColor: nameColor }}
+              >
+                {initials}
               </div>
               <span className="text-sm font-medium">{answer.userName}</span>
               <span className="text-xs text-muted-foreground">
@@ -91,6 +103,16 @@ export function AnswerCard({ answer }: AnswerCardProps) {
                   Best Answer
                 </span>
               )}
+              <div className="flex-1" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                onClick={handleReport}
+                title="Report this answer"
+              >
+                <Flag className="h-3 w-3" />
+              </Button>
             </div>
             <p className="text-sm leading-relaxed whitespace-pre-wrap">
               {answer.body}

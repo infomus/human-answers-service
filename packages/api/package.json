@@ -11,6 +11,8 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@agent-layer/core": "file:../../../agent-layer-ts/packages/core",
+    "@agent-layer/express": "file:../../../agent-layer-ts/packages/express",
     "@prisma/client": "^6.5.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

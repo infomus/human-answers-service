@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { api, type LeaderboardUser } from "@/lib/api";
-import { Trophy, Medal, Award, User, Loader2 } from "lucide-react";
+import { getUserInitials } from "@/lib/utils";
+import { Trophy, Medal, Award, Loader2 } from "lucide-react";
 
 export default function LeaderboardPage() {
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
@@ -58,29 +64,38 @@ export default function LeaderboardPage() {
             </p>
           ) : (
             <div className="space-y-3">
-              {users.map((user, i) => (
-                <div
-                  key={user.id}
-                  className={`flex items-center gap-4 p-3 rounded-lg ${
-                    i < 3 ? "bg-muted/50" : ""
-                  }`}
-                >
-                  <div className="flex-shrink-0 w-8 flex justify-center">
-                    {getRankIcon(i)}
-                  </div>
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <User className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium">{user.name}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold text-primary">
-                      {user.credits} credits
+              {users.map((user, i) => {
+                const initials = getUserInitials(user.name);
+                const hue = user.name.charCodeAt(0) * 7 % 360;
+                return (
+                  <div
+                    key={user.id}
+                    className={`flex items-center gap-4 p-3 rounded-lg ${
+                      i < 3 ? "bg-muted/50" : ""
+                    }`}
+                  >
+                    <div className="flex-shrink-0 w-8 flex justify-center">
+                      {getRankIcon(i)}
+                    </div>
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold"
+                      style={{
+                        backgroundColor: `hsl(${hue}, 60%, 45%)`,
+                      }}
+                    >
+                      {initials}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium">{user.name}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-primary">
+                        {user.credits} credits
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

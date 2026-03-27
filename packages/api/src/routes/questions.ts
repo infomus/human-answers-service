@@ -12,15 +12,31 @@ router.get("/", async (req, res) => {
       category,
       status,
       demographic,
+      search,
+      sort,
       page = "1",
       limit = "20",
     } = req.query;
 
-    const where: Record<string, string> = {};
+    const where: Record<string, unknown> = {};
     if (category && typeof category === "string") where.category = category;
     if (status && typeof status === "string") where.status = status;
     if (demographic && typeof demographic === "string")
       where.demographic = demographic;
+    if (search && typeof search === "string") {
+      where.OR = [
+        { title: { contains: search } },
+        { body: { contains: search } },
+      ];
+    }
+
+    let orderBy: Record<string, string> = { createdAt: "desc" };
+    if (sort === "trending") {
+      // Sort by answer count (most active) — approximated by updatedAt
+      orderBy = { updatedAt: "desc" };
+    } else if (sort === "oldest") {
+      orderBy = { createdAt: "asc" };
+    }
 
     const pageNum = Math.max(1, parseInt(page as string));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit as string)));
@@ -29,7 +45,7 @@ router.get("/", async (req, res) => {
       prisma.question.findMany({
         where,
         include: { _count: { select: { answers: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy,
         skip: (pageNum - 1) * limitNum,
         take: limitNum,
       }),
